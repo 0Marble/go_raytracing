@@ -1,6 +1,8 @@
 package scene
 
 import (
+	"image"
+	"image/color"
 	"raytracing/linal"
 	"raytracing/transfrom"
 )
@@ -9,6 +11,18 @@ type Image struct {
 	Width  int
 	Height int
 	Pixels []Color
+}
+
+func (i *Image) ColorModel() color.Model {
+	return color.RGBAModel
+}
+
+func (i *Image) Bounds() image.Rectangle {
+	return image.Rectangle{Min: image.Point{0, 0}, Max: image.Point{i.Width, i.Height}}
+}
+
+func (i *Image) At(x int, y int) color.Color {
+	return &i.Pixels[(i.Height-y-1)*i.Width+x]
 }
 
 type Camera interface {
@@ -30,12 +44,20 @@ type SimpleCamera struct {
 	}
 }
 
+func InitSimpleCamera(transform transfrom.Transform, xSamples int, ySamples int) SimpleCamera {
+	return SimpleCamera{transform: transform, x: 0, y: 0, xSamples: xSamples, ySamples: ySamples, samples: make([]struct {
+		color Color
+		uv    Uv
+	}, 0)}
+}
+
 func (c *SimpleCamera) Transform() *transfrom.Transform {
 	return &c.transform
 }
 
 func (c *SimpleCamera) ShootRay() (Ray, Uv, bool) {
 	if c.y >= c.ySamples {
+		c.y = 0
 		return Ray{}, Uv{}, false
 	}
 	xStep := 1.0 / float32(c.xSamples)
@@ -60,7 +82,7 @@ func (c *SimpleCamera) ShootRay() (Ray, Uv, bool) {
 	origin = mat.ApplyToPoint(origin)
 	dir := mat.ApplyToDir(p)
 
-	return Ray{Start: origin, Dir: dir, Step: 1.0}, uv, true
+	return Ray{Start: origin, Dir: dir, Step: 3}, uv, true
 }
 
 func (c *SimpleCamera) EmitPixel(uv Uv, color Color) {
@@ -72,13 +94,16 @@ func (c *SimpleCamera) EmitPixel(uv Uv, color Color) {
 
 func (c *SimpleCamera) ToImage(width int, height int) Image {
 	pixels := make([]Color, width*height)
-	xStep := 1.0 / float32(c.xSamples)
-	yStep := 1.0 / float32(c.ySamples)
+	xStep := float32(width)
+	yStep := float32(height)
 
 	counts := make([]int, width*height)
 	for _, sample := range c.samples {
-		row := int(sample.uv.V / yStep)
-		col := int(sample.uv.U / xStep)
+		row := int(sample.uv.V * yStep)
+		col := int(sample.uv.U * xStep)
+		if col >= width || row >= height || col < 0 || row < 0 {
+			continue
+		}
 		pixels[row*width+col].R += sample.color.R
 		pixels[row*width+col].G += sample.color.G
 		pixels[row*width+col].B += sample.color.B

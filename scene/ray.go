@@ -23,5 +23,5 @@ func (ray *Ray) GetPoint(t float32) linal.Vec3 {
 }
 
 func (ray *Ray) AdvanceBy(dist float32) Ray {
-	return Ray{ray.Start.Add(ray.Dir.Mul(dist)), ray.Dir, ray.Step}
+	return Ray{Start: ray.Start.Add(ray.Dir.Mul(dist)), Dir: ray.Dir, Step: ray.Step}
 }

@@ -1,6 +1,7 @@
 package raymarching
 
 import (
+	"log"
 	"math"
 	"math/rand"
 	"raytracing/linal"
@@ -12,70 +13,128 @@ type Raymarcher struct {
 	bounce int
 }
 
-func (r *Raymarcher) March() bool {
-	ray, uv, end := r.scene.Cam.ShootRay()
-	if end {
-		return true
-	}
-
-	color := r.march(ray, r.bounce)
-	r.scene.Cam.EmitPixel(uv, color)
-
-	return false
+func InitRaymarcher(scene scene.Scene, bounce int) Raymarcher {
+	return Raymarcher{scene, bounce}
 }
 
-func (r *Raymarcher) march(ray scene.Ray, bounce int) scene.Color {
-	if bounce == -1 {
-		return scene.Color{}
+func (r *Raymarcher) March() bool {
+	ray, uv, notEnd := r.scene.Cam.ShootRay()
+	if !notEnd {
+		return false
 	}
+	// log.Println("Emitted ray ", ray)
 
-	obj, dist := r.scene.MaxDist(ray)
-	if obj == nil {
-		aabb := r.scene.TotalAabb()
-		if !aabb.ContainsPoint(ray.Start) {
-			sp := ray.Start.ToSpherical()
-			return r.scene.Outside.Color(scene.Uv{U: sp.Y, V: sp.Z})
+	hits := make([]struct {
+		material *scene.Material
+		uv       scene.Uv
+	}, 0)
+	bounce := r.bounce
+	for {
+		step := r.march(ray, bounce)
+		ray = step.nextRay
+		bounce = step.bounce
+		// log.Println("\t bounce=", bounce, "ray=", ray)
+
+		if step.isHit {
+			hits = append(hits, struct {
+				material *scene.Material
+				uv       scene.Uv
+			}{step.material, step.hitUv})
 		}
-		return r.march(ray.AdvanceBy(ray.Step), bounce)
-	}
-	if dist > 0.0 {
-		return r.march(ray.AdvanceBy(ray.Step), bounce)
-	}
 
-	material := (*obj).Material()
-	uv := (*obj).ToUv(ray.Start)
-	c1 := (*material).Color(uv)
-
-	normal := (*obj).Normal(uv)
-	reflectedDir := ray.Dir.Sub(normal.Mul(ray.Dir.Dot(normal) * 2.0))
-
-	dir := linal.Vec3{}
-	if (*material).Reflectiveness(uv) == 1.0 {
-		dir = reflectedDir
-	} else {
-		reflectedAngles := reflectedDir.ToSpherical()
-		theta := float32(rand.NormFloat64()*float64(1.0-(*material).Reflectiveness(uv)) + float64(reflectedAngles.Y))
-		phi := float32(rand.NormFloat64()*float64(1.0-(*material).Reflectiveness(uv)) + float64(reflectedAngles.Z))
-		theta = float32(math.Remainder(float64(theta), 2.0*math.Pi))
-		phi = float32(math.Remainder(float64(phi), math.Pi))
-		dir = linal.Vec3{X: 1.0, Y: theta, Z: phi}.FromSpherical()
-
-		if normal.Dot(dir) < 0.0 {
-			dir = dir.Mul(-1)
+		if step.isEnd || step.bounce < 0 {
+			break
 		}
 	}
 
-	c2 := r.march(scene.Ray{Dir: dir, Start: ray.Start, Step: ray.Step}, bounce-1)
-	res := c1
-	if (*material).EmitsLight() {
-		res.R += c2.R
-		res.G += c2.G
-		res.B += c2.B
-	} else {
-		res.R *= c2.R
-		res.G *= c2.G
-		res.B *= c2.B
+	color := scene.Color{}
+	for i := len(hits) - 1; i >= 0; i-- {
+		c := (*hits[i].material).Color(hits[i].uv)
+		if (*hits[i].material).EmitsLight() {
+			color.R += c.R
+			color.G += c.G
+			color.B += c.B
+		} else {
+			color.R *= c.R
+			color.G *= c.G
+			color.B *= c.B
+		}
+
+		if color.R > 1 {
+			color.R = 1
+		}
+		if color.G > 1 {
+			color.G = 1
+		}
+		if color.B > 1 {
+			color.B = 1
+		}
 	}
 
-	return res
+	r.scene.Cam.EmitPixel(uv, color)
+
+	return true
+}
+
+type marchStep struct {
+	nextRay  scene.Ray
+	bounce   int
+	isHit    bool
+	material *scene.Material
+	hitUv    scene.Uv
+	isEnd    bool
+}
+
+func (r *Raymarcher) march(ray scene.Ray, bounce int) marchStep {
+	for {
+		obj, dist := r.scene.MinDist(ray)
+
+		if obj == nil {
+			aabb := r.scene.TotalAabb()
+			if !aabb.ContainsPoint(ray.Start) {
+				sp := ray.Start.ToSpherical()
+				return marchStep{
+					material: &r.scene.Outside,
+					hitUv:    scene.Uv{U: sp.Y / (2 * math.Pi), V: sp.Z / math.Pi},
+					isEnd:    true,
+					isHit:    true,
+				}
+			}
+			ray = ray.AdvanceBy(ray.Step)
+			continue
+		}
+		if dist > 1e-5 {
+			ray = ray.AdvanceBy(dist)
+			continue
+		}
+
+		material := (*obj).Material()
+		uv := (*obj).ToUv(ray.Start)
+		normal := (*obj).Normal(uv)
+		reflectedDir := ray.Dir.Sub(normal.Mul(ray.Dir.Dot(normal) * 2.0))
+
+		dir := linal.Vec3{}
+		ref := (*material).Reflectiveness(uv)
+		if ref == 1.0 {
+			dir = reflectedDir
+		} else {
+			reflectedAngles := reflectedDir.ToSpherical()
+			u := reflectedAngles.Y / (2.0 * math.Pi)
+			v := reflectedAngles.Z / math.Pi
+			s := float32(rand.NormFloat64())*(1-ref) + u
+			t := float32(rand.NormFloat64())*(1-ref) + v
+
+			dir = linal.Vec3{X: 1.0, Y: s * 2 * math.Pi, Z: t * math.Pi}.FromSpherical()
+
+			if normal.Dot(dir) < 0.0 {
+				dir = dir.Mul(-1)
+			}
+		}
+		if dir.LenSquared() == 0.0 {
+			log.Fatal(dir)
+		}
+
+		newRay := scene.Ray{Start: ray.Start, Dir: dir, Step: ray.Step}
+		return marchStep{nextRay: newRay.AdvanceBy(1e-3), bounce: bounce - 1, material: material, hitUv: uv, isHit: true}
+	}
 }

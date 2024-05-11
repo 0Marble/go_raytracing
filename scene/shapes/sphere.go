@@ -50,13 +50,29 @@ func (s *Sphere) intersect(ray scene.Ray) (float32, bool) {
 }
 
 func (s *Sphere) Distance(pt linal.Vec3) float32 {
-	center := s.transform.Translation
-	return pt.Sub(center).Len()
+	mat := s.transform.ToMat()
+	inv, ok := mat.Inverse()
+	if !ok {
+		log.Fatalf("Sphere %p : transform non-invertable", s)
+	}
+
+	loc := inv.ApplyToPoint(pt)
+	l := loc.Len()
+	closest := loc.Div(l)
+	closestGlob := mat.ApplyToPoint(closest)
+	res := pt.Sub(closestGlob).Len()
+	if l < 1.0 {
+		res *= -1
+	}
+	return res
 }
 
 func (s *Sphere) Normal(uv scene.Uv) linal.Vec3 {
-	center := linal.Vec3{}.Add(s.transform.Translation)
-	res, _ := s.FromUv(uv).Sub(center).Normalize()
+	mat := s.transform.ToMat()
+	spLoc := linal.Vec3{X: 1, Y: uv.U * 2 * math.Pi, Z: uv.V * math.Pi}
+	loc := spLoc.FromSpherical()
+	res, _ := mat.ApplyToDir(loc).Normalize()
+
 	return res
 }
 

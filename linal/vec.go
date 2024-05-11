@@ -50,18 +50,6 @@ func (a Vec3) Normalize() (Vec3, bool) {
 }
 
 func (a Vec3) Min(b Vec3) Vec3 {
-	if a.X < b.X {
-		a.X = b.X
-	}
-	if a.Y < b.Y {
-		a.Y = b.Y
-	}
-	if a.Z < b.Z {
-		a.Z = b.Z
-	}
-	return a
-}
-func (a Vec3) Max(b Vec3) Vec3 {
 	if a.X > b.X {
 		a.X = b.X
 	}
@@ -69,6 +57,18 @@ func (a Vec3) Max(b Vec3) Vec3 {
 		a.Y = b.Y
 	}
 	if a.Z > b.Z {
+		a.Z = b.Z
+	}
+	return a
+}
+func (a Vec3) Max(b Vec3) Vec3 {
+	if a.X < b.X {
+		a.X = b.X
+	}
+	if a.Y < b.Y {
+		a.Y = b.Y
+	}
+	if a.Z < b.Z {
 		a.Z = b.Z
 	}
 	return a

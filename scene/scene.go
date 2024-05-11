@@ -1,6 +1,8 @@
 package scene
 
-import "raytracing/linal"
+import (
+	"raytracing/linal"
+)
 
 type Scene struct {
 	objs    []Object
@@ -8,8 +10,12 @@ type Scene struct {
 	Outside Material
 }
 
-func (s *Scene) MaxDist(ray Ray) (*Object, float32) {
-	max := float32(0.0)
+func InitScene(objs []Object, cam Camera, outside Material) Scene {
+	return Scene{objs, cam, outside}
+}
+
+func (s *Scene) MinDist(ray Ray) (*Object, float32) {
+	min := float32(ray.Step)
 	var resObj *Object = nil
 
 	for i, obj := range s.objs {
@@ -18,13 +24,12 @@ func (s *Scene) MaxDist(ray Ray) (*Object, float32) {
 			continue
 		}
 
-		if dist > max {
-			max = dist
+		if dist < min || resObj == nil {
+			min = dist
 			resObj = &s.objs[i]
 		}
 	}
-
-	return resObj, max
+	return resObj, min
 }
 
 func (s *Scene) TotalAabb() linal.Aabb {
