@@ -48,3 +48,46 @@ func (a Vec3) Normalize() (Vec3, bool) {
 	len := a.Len()
 	return Vec3{a.X / len, a.Y / len, a.Z / len}, true
 }
+
+func (a Vec3) Min(b Vec3) Vec3 {
+	if a.X < b.X {
+		a.X = b.X
+	}
+	if a.Y < b.Y {
+		a.Y = b.Y
+	}
+	if a.Z < b.Z {
+		a.Z = b.Z
+	}
+	return a
+}
+func (a Vec3) Max(b Vec3) Vec3 {
+	if a.X > b.X {
+		a.X = b.X
+	}
+	if a.Y > b.Y {
+		a.Y = b.Y
+	}
+	if a.Z > b.Z {
+		a.Z = b.Z
+	}
+	return a
+}
+
+func (sp Vec3) FromSpherical() Vec3 {
+	theta := sp.Y
+	phi := sp.Z
+	thetaSin, thetaCos := math.Sincos(float64(theta))
+	phiSin, phiCos := math.Sincos(float64(phi))
+	res := Vec3{X: sp.X * float32(thetaSin*phiCos), Y: sp.X * float32(thetaSin*phiSin), Z: sp.X * float32(thetaCos)}
+	return res
+}
+
+func (pt Vec3) ToSpherical() Vec3 {
+	xy := pt.X*pt.X + pt.Y*pt.Y
+
+	theta := float32(math.Atan2(math.Sqrt(float64(xy)), float64(pt.Z)))
+	phi := float32(math.Atan2(float64(pt.Y), float64(pt.X)))
+
+	return Vec3{X: pt.Len(), Y: theta, Z: phi}
+}

@@ -18,9 +18,9 @@ func (t *Transform) ToMat() linal.Mat {
 	roty := rotMatX(t.Rotation.Y)
 	rotz := rotMatX(t.Rotation.Z)
 
-	a := roty.Matmul(&rotx)
-	b := rotz.Matmul(&a)
-	c := scale.Matmul(&b)
+	a := rotx.Matmul(&scale)
+	b := roty.Matmul(&a)
+	c := rotz.Matmul(&b)
 
 	return trans.Matmul(&c)
 }

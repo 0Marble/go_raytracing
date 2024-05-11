@@ -169,3 +169,23 @@ func (mat *Mat) String() string {
 
 	return res
 }
+
+func (mat *Mat) Apply(vec []float32) []float32 {
+	res := make([]float32, mat.Size)
+	for row := 0; row < mat.Size; row++ {
+		for col := 0; col < mat.Size; col++ {
+			res[row] += mat.Get(row, col) * vec[col]
+		}
+	}
+
+	return res
+}
+
+func (mat *Mat) ApplyToPoint(pt Vec3) Vec3 {
+	p := mat.Apply([]float32{pt.X, pt.Y, pt.Z, 1.0})
+	return Vec3{p[0], p[1], p[2]}
+}
+func (mat *Mat) ApplyToDir(dir Vec3) Vec3 {
+	p := mat.Apply([]float32{dir.X, dir.Y, dir.Z, 0.0})
+	return Vec3{p[0], p[1], p[2]}
+}
