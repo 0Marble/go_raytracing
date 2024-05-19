@@ -22,7 +22,7 @@ type SimpleMaterial struct {
 	isLight        bool
 }
 
-func InitMaterial(color Color, reflectiveness float32, isLight bool) SimpleMaterial {
+func InitSimpleMaterial(color Color, reflectiveness float32, isLight bool) SimpleMaterial {
 	return SimpleMaterial{color, reflectiveness, isLight}
 }
 

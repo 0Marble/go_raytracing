@@ -2,7 +2,6 @@ package scene
 
 import (
 	"raytracing/linal"
-	"raytracing/transfrom"
 )
 
 type Uv struct {
@@ -10,12 +9,17 @@ type Uv struct {
 	V float32
 }
 
+type Intersection struct {
+	Uv    Uv
+	T     float32
+	IsHit bool
+}
+
 type Object interface {
-	Distance(pt linal.Vec3) float32
+	Intersect(ray Ray) Intersection
 	Normal(pt Uv) linal.Vec3
 	FromUv(pt Uv) linal.Vec3
 	ToUv(pt linal.Vec3) Uv
-	Transform() *transfrom.Transform
 	Material() *Material
 	Aabb() linal.Aabb
 }

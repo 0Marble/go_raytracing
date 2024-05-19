@@ -3,6 +3,7 @@ package scene
 import (
 	"image"
 	"image/color"
+	"math/rand"
 	"raytracing/linal"
 	"raytracing/transfrom"
 )
@@ -63,7 +64,9 @@ func (c *SimpleCamera) ShootRay() (Ray, Uv, bool) {
 	xStep := 1.0 / float32(c.xSamples)
 	yStep := 1.0 / float32(c.ySamples)
 
-	uv := Uv{U: float32(c.x) * xStep, V: float32(c.y) * yStep}
+	s := rand.Float32()
+	t := rand.Float32()
+	uv := Uv{U: (float32(c.x) + s) * xStep, V: (float32(c.y) + t) * yStep}
 	c.x++
 	if c.x >= c.xSamples {
 		c.x = 0
@@ -82,7 +85,7 @@ func (c *SimpleCamera) ShootRay() (Ray, Uv, bool) {
 	origin = mat.ApplyToPoint(origin)
 	dir := mat.ApplyToDir(p)
 
-	return Ray{Start: origin, Dir: dir, Step: 3}, uv, true
+	return Ray{Start: origin, Dir: dir}, uv, true
 }
 
 func (c *SimpleCamera) EmitPixel(uv Uv, color Color) {

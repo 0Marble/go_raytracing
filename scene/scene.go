@@ -14,22 +14,27 @@ func InitScene(objs []Object, cam Camera, outside Material) Scene {
 	return Scene{objs, cam, outside}
 }
 
-func (s *Scene) MinDist(ray Ray) (*Object, float32) {
-	min := float32(ray.Step)
+func (s *Scene) Intersect(ray Ray) (*Object, Intersection) {
 	var resObj *Object = nil
+	var res Intersection
+	minDist := float32(0.0)
 
 	for i, obj := range s.objs {
-		dist := obj.Distance(ray.Start)
-		if dist > ray.Step {
+		intersection := obj.Intersect(ray)
+		if !intersection.IsHit {
 			continue
 		}
 
-		if dist < min || resObj == nil {
-			min = dist
+		pt := obj.FromUv(intersection.Uv)
+		dist := pt.Sub(ray.Start).Len()
+
+		if dist < minDist || resObj == nil {
+			minDist = dist
 			resObj = &s.objs[i]
+			res = intersection
 		}
 	}
-	return resObj, min
+	return resObj, res
 }
 
 func (s *Scene) TotalAabb() linal.Aabb {
