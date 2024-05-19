@@ -3,17 +3,16 @@ package shapes
 import (
 	"log"
 	"raytracing/linal"
-	"raytracing/scene"
-	"raytracing/transfrom"
+	"raytracing/materials"
 )
 
 type Rect struct {
-	material scene.Material
+	material materials.Material
 	mat      linal.Mat
 	inv      linal.Mat
 }
 
-func InitRect(transform transfrom.Transform, material scene.Material) Rect {
+func InitRect(transform linal.Transform, material materials.Material) Rect {
 	mat := transform.ToMat()
 	inv, ok := mat.Inverse()
 	if !ok {
@@ -22,34 +21,34 @@ func InitRect(transform transfrom.Transform, material scene.Material) Rect {
 	return Rect{mat: mat, inv: inv, material: material}
 }
 
-func (s *Rect) Intersect(ray scene.Ray) scene.Intersection {
+func (s *Rect) Intersect(ray linal.Ray) Intersection {
 	origin := s.inv.ApplyToPoint(ray.Start)
 	dir := s.inv.ApplyToDir(ray.Dir)
 	if origin.Z == 0 {
-		uv := scene.Uv{U: origin.X + 0.5, V: origin.Y + 0.5}
+		uv := linal.Uv{U: origin.X + 0.5, V: origin.Y + 0.5}
 		if uv.U > 1 || uv.U < 0 || uv.V > 1 || uv.V < 0 {
-			return scene.Intersection{IsHit: false}
+			return Intersection{IsHit: false}
 		}
 
-		return scene.Intersection{IsHit: true, Uv: uv}
+		return Intersection{IsHit: true, Uv: uv}
 	} else if dir.Z == 0 {
-		return scene.Intersection{IsHit: false}
+		return Intersection{IsHit: false}
 	}
 
 	t := -origin.Z / dir.Z
 	if t <= 0.0 {
-		return scene.Intersection{IsHit: false}
+		return Intersection{IsHit: false}
 	}
 	pt := origin.Add(dir.Mul(t))
-	uv := scene.Uv{U: pt.X + 0.5, V: pt.Y + 0.5}
+	uv := linal.Uv{U: pt.X + 0.5, V: pt.Y + 0.5}
 	if uv.U > 1 || uv.U < 0 || uv.V > 1 || uv.V < 0 {
-		return scene.Intersection{IsHit: false}
+		return Intersection{IsHit: false}
 	}
 
-	return scene.Intersection{IsHit: true, Uv: uv}
+	return Intersection{IsHit: true, Uv: uv}
 }
 
-func (s *Rect) Normal(uv scene.Uv) linal.Vec3 {
+func (s *Rect) Normal(uv linal.Uv) linal.Vec3 {
 	norm := linal.Vec3{Z: -1}
 	trans := s.mat.Transpose()
 	trans, _ = trans.Inverse()
@@ -58,14 +57,14 @@ func (s *Rect) Normal(uv scene.Uv) linal.Vec3 {
 	return res
 }
 
-func (s *Rect) FromUv(uv scene.Uv) linal.Vec3 {
+func (s *Rect) FromUv(uv linal.Uv) linal.Vec3 {
 	pt := linal.Vec3{X: uv.U - 0.5, Y: uv.V - 0.5, Z: 0}
 	return s.mat.ApplyToPoint(pt)
 }
 
-func (s *Rect) ToUv(pt linal.Vec3) scene.Uv {
+func (s *Rect) ToUv(pt linal.Vec3) linal.Uv {
 	uv := s.inv.ApplyToPoint(pt)
-	return scene.Uv{U: uv.X + 0.5, V: uv.Y + 0.5}
+	return linal.Uv{U: uv.X + 0.5, V: uv.Y + 0.5}
 }
 
 func (s *Rect) TransformMat() linal.Mat {
@@ -75,7 +74,7 @@ func (s *Rect) InverseTransformMat() linal.Mat {
 	return s.inv
 }
 
-func (s *Rect) Material() *scene.Material {
+func (s *Rect) Material() *materials.Material {
 	return &s.material
 }
 

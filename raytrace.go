@@ -1,9 +1,10 @@
-package raymarching
+package main
 
 import (
 	"math"
 	"math/rand"
 	"raytracing/linal"
+	"raytracing/materials"
 	"raytracing/scene"
 )
 
@@ -23,8 +24,8 @@ func (r *Raymarcher) March() bool {
 	}
 
 	hits := make([]struct {
-		material *scene.Material
-		uv       scene.Uv
+		material *materials.Material
+		uv       linal.Uv
 		incoming linal.Vec3
 		normal   linal.Vec3
 	}, 0)
@@ -36,8 +37,8 @@ func (r *Raymarcher) March() bool {
 		if step.isHit {
 			bounce += 1
 			hits = append(hits, struct {
-				material *scene.Material
-				uv       scene.Uv
+				material *materials.Material
+				uv       linal.Uv
 				incoming linal.Vec3
 				normal   linal.Vec3
 			}{step.material, step.hitUv, step.incomingDir, step.normal})
@@ -48,13 +49,13 @@ func (r *Raymarcher) March() bool {
 		}
 	}
 
-	lightColor := scene.Color{}
+	lightColor := materials.Color{}
 	for i := len(hits) - 1; i >= 0; i-- {
 		matColor := (*hits[i].material).Color(hits[i].uv)
 		n := hits[i].normal
 		l := hits[i].incoming
 		dot := -n.Dot(l)
-		if (*hits[i].material).EmitsLight() {
+		if false {
 			lightColor.R = matColor.R + lightColor.R*matColor.R*dot
 			lightColor.G = matColor.G + lightColor.G*matColor.G*dot
 			lightColor.B = matColor.B + lightColor.B*matColor.B*dot
@@ -82,24 +83,24 @@ func (r *Raymarcher) March() bool {
 }
 
 type marchStep struct {
-	nextRay     scene.Ray
+	nextRay     linal.Ray
 	bounce      int
 	isHit       bool
-	material    *scene.Material
-	hitUv       scene.Uv
+	material    *materials.Material
+	hitUv       linal.Uv
 	incomingDir linal.Vec3
 	normal      linal.Vec3
 	isEnd       bool
 }
 
-func (r *Raymarcher) march(ray scene.Ray) marchStep {
+func (r *Raymarcher) march(ray linal.Ray) marchStep {
 	obj, intersection := r.scene.Intersect(ray)
 
 	if obj == nil {
 		sp := ray.Start.ToSpherical()
 		return marchStep{
 			material:    &r.scene.Outside,
-			hitUv:       scene.Uv{U: sp.Y / (2 * math.Pi), V: sp.Z / math.Pi},
+			hitUv:       linal.Uv{U: sp.Y / (2 * math.Pi), V: sp.Z / math.Pi},
 			isEnd:       true,
 			isHit:       true,
 			normal:      ray.Dir.Mul(-1),
@@ -132,7 +133,7 @@ func (r *Raymarcher) march(ray scene.Ray) marchStep {
 		}
 	}
 
-	newRay := scene.Ray{Start: hitPos.Add(dir.Mul(1e-3)), Dir: dir}
+	newRay := linal.Ray{Start: hitPos.Add(dir.Mul(1e-3)), Dir: dir}
 	return marchStep{
 		nextRay:     newRay,
 		material:    material,

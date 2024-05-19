@@ -5,13 +5,13 @@ import (
 	"image/color"
 	"math/rand"
 	"raytracing/linal"
-	"raytracing/transfrom"
+	"raytracing/materials"
 )
 
 type Image struct {
 	Width  int
 	Height int
-	Pixels []Color
+	Pixels []materials.Color
 }
 
 func (i *Image) ColorModel() color.Model {
@@ -27,46 +27,46 @@ func (i *Image) At(x int, y int) color.Color {
 }
 
 type Camera interface {
-	Transform() *transfrom.Transform
-	ShootRay() (Ray, Uv, bool)
-	EmitPixel(uv Uv, color Color)
+	Transform() *linal.Transform
+	ShootRay() (linal.Ray, linal.Uv, bool)
+	EmitPixel(uv linal.Uv, color materials.Color)
 	ToImage(width int, height int) Image
 }
 
 type SimpleCamera struct {
-	transform transfrom.Transform
+	transform linal.Transform
 	x         int
 	y         int
 	xSamples  int
 	ySamples  int
 	samples   []struct {
-		color Color
-		uv    Uv
+		color materials.Color
+		uv    linal.Uv
 	}
 }
 
-func InitSimpleCamera(transform transfrom.Transform, xSamples int, ySamples int) SimpleCamera {
+func InitSimpleCamera(transform linal.Transform, xSamples int, ySamples int) SimpleCamera {
 	return SimpleCamera{transform: transform, x: 0, y: 0, xSamples: xSamples, ySamples: ySamples, samples: make([]struct {
-		color Color
-		uv    Uv
+		color materials.Color
+		uv    linal.Uv
 	}, 0)}
 }
 
-func (c *SimpleCamera) Transform() *transfrom.Transform {
+func (c *SimpleCamera) Transform() *linal.Transform {
 	return &c.transform
 }
 
-func (c *SimpleCamera) ShootRay() (Ray, Uv, bool) {
+func (c *SimpleCamera) ShootRay() (linal.Ray, linal.Uv, bool) {
 	if c.y >= c.ySamples {
 		c.y = 0
-		return Ray{}, Uv{}, false
+		return linal.Ray{}, linal.Uv{}, false
 	}
 	xStep := 1.0 / float32(c.xSamples)
 	yStep := 1.0 / float32(c.ySamples)
 
 	s := rand.Float32()
 	t := rand.Float32()
-	uv := Uv{U: (float32(c.x) + s) * xStep, V: (float32(c.y) + t) * yStep}
+	uv := linal.Uv{U: (float32(c.x) + s) * xStep, V: (float32(c.y) + t) * yStep}
 	c.x++
 	if c.x >= c.xSamples {
 		c.x = 0
@@ -85,18 +85,18 @@ func (c *SimpleCamera) ShootRay() (Ray, Uv, bool) {
 	origin = mat.ApplyToPoint(origin)
 	dir := mat.ApplyToDir(p)
 
-	return Ray{Start: origin, Dir: dir}, uv, true
+	return linal.Ray{Start: origin, Dir: dir}, uv, true
 }
 
-func (c *SimpleCamera) EmitPixel(uv Uv, color Color) {
+func (c *SimpleCamera) EmitPixel(uv linal.Uv, color materials.Color) {
 	c.samples = append(c.samples, struct {
-		color Color
-		uv    Uv
+		color materials.Color
+		uv    linal.Uv
 	}{color, uv})
 }
 
 func (c *SimpleCamera) ToImage(width int, height int) Image {
-	pixels := make([]Color, width*height)
+	pixels := make([]materials.Color, width*height)
 	xStep := float32(width)
 	yStep := float32(height)
 

@@ -1,12 +1,12 @@
-package raymarching
+package main
 
 import (
 	"log"
 	"math"
 	"raytracing/linal"
+	"raytracing/materials"
 	"raytracing/scene"
-	"raytracing/scene/shapes"
-	"raytracing/transfrom"
+	"raytracing/shapes"
 	"testing"
 )
 
@@ -22,16 +22,16 @@ func vecAlmostEqual(a linal.Vec3, b linal.Vec3, t *testing.T) {
 }
 
 func TestTwoSpheres(t *testing.T) {
-	m1 := scene.InitSimpleMaterial(scene.Color{R: 1}, 1.0, false)
-	m2 := scene.InitSimpleMaterial(scene.Color{R: 1, G: 1, B: 1}, 1.0, true)
-	sky := scene.InitSimpleMaterial(scene.Color{}, 1, false)
-	s1 := shapes.InitSphere(transfrom.Transform{Scale: linal.Vec3{X: 1, Y: 1, Z: 1}, Translation: linal.Vec3{Z: 3}}, &m1)
-	s2 := shapes.InitSphere(transfrom.Transform{Scale: linal.Vec3{X: 1, Y: 1, Z: 1}, Translation: linal.Vec3{Z: -3}}, &m2)
-	cam := scene.InitSimpleCamera(transfrom.Transform{Scale: linal.Vec3{X: 1, Y: 1, Z: 1}}, 400, 400)
-	s := scene.InitScene([]scene.Object{&s1, &s2}, &cam, &sky)
+	m1 := materials.InitSimpleMaterial(materials.Color{R: 1}, 1.0)
+	m2 := materials.InitSimpleMaterial(materials.Color{R: 1, G: 1, B: 1}, 1.0)
+	sky := materials.InitSimpleMaterial(materials.Color{}, 1)
+	s1 := shapes.InitSphere(linal.Transform{Scale: linal.Vec3{X: 1, Y: 1, Z: 1}, Translation: linal.Vec3{Z: 3}}, &m1)
+	s2 := shapes.InitSphere(linal.Transform{Scale: linal.Vec3{X: 1, Y: 1, Z: 1}, Translation: linal.Vec3{Z: -3}}, &m2)
+	cam := scene.InitSimpleCamera(linal.Transform{Scale: linal.Vec3{X: 1, Y: 1, Z: 1}}, 400, 400)
+	s := scene.InitScene([]shapes.Object{&s1, &s2}, &cam, &sky)
 	rm := InitRaymarcher(s, 1)
 
-	ray := scene.Ray{Dir: linal.Vec3{Z: 1}}
+	ray := linal.Ray{Dir: linal.Vec3{Z: 1}}
 	step := rm.march(ray)
 
 	if !step.isHit {
@@ -65,22 +65,22 @@ func TestTwoSpheres(t *testing.T) {
 
 func TestLowGround(t *testing.T) {
 	log.Println("TestLowGround")
-	purple := scene.InitSimpleMaterial(scene.Color{R: 0.5, G: 0, B: 0.5}, 1.0, false)
-	sky := scene.InitSimpleMaterial(scene.Color{R: 1, G: 1, B: 1}, 0, true)
+	purple := materials.InitSimpleMaterial(materials.Color{R: 0.5, G: 0, B: 0.5}, 1.0)
+	sky := materials.InitSimpleMaterial(materials.Color{R: 1, G: 1, B: 1}, 0)
 	ground := shapes.InitSphere(
-		transfrom.Transform{
+		linal.Transform{
 			Scale:       linal.Vec3{X: 100, Y: 2, Z: 100},
 			Translation: linal.Vec3{Y: -8},
 		},
 		&purple,
 	)
-	cam := scene.InitSimpleCamera(transfrom.Transform{Scale: linal.Vec3{X: 1, Y: 1, Z: 1}, Translation: linal.Vec3{Z: -2}}, 500, 500)
-	s := scene.InitScene([]scene.Object{&ground}, &cam, &sky)
+	cam := scene.InitSimpleCamera(linal.Transform{Scale: linal.Vec3{X: 1, Y: 1, Z: 1}, Translation: linal.Vec3{Z: -2}}, 500, 500)
+	s := scene.InitScene([]shapes.Object{&ground}, &cam, &sky)
 	rm := InitRaymarcher(s, 10)
 
 	dir := linal.Vec3{Y: -1, Z: 1}
 	dir, _ = dir.Normalize()
-	ray := scene.Ray{Dir: dir}
+	ray := linal.Ray{Dir: dir}
 
 	step := rm.march(ray)
 	if !step.isHit || step.material != ground.Material() {

@@ -3,8 +3,7 @@ package shapes
 import (
 	"math"
 	"raytracing/linal"
-	"raytracing/scene"
-	"raytracing/transfrom"
+	"raytracing/materials"
 	"testing"
 )
 
@@ -20,9 +19,9 @@ func vecAlmostEqual(a linal.Vec3, b linal.Vec3, t *testing.T) {
 }
 
 func TestSphereIntersect(t *testing.T) {
-	m := scene.InitSimpleMaterial(scene.Color{}, 0.0, false)
-	s := InitSphere(transfrom.Transform{Scale: linal.Vec3{X: 1, Y: 1, Z: 1}}, &m)
-	ray := scene.Ray{Dir: linal.Vec3{Z: 1}, Start: linal.Vec3{Z: -2}}
+	m := materials.InitSimpleMaterial(materials.Color{}, 0.0)
+	s := InitSphere(linal.Transform{Scale: linal.Vec3{X: 1, Y: 1, Z: 1}}, &m)
+	ray := linal.Ray{Dir: linal.Vec3{Z: 1}, Start: linal.Vec3{Z: -2}}
 	intersection := s.Intersect(ray)
 
 	if !intersection.IsHit {
@@ -33,8 +32,8 @@ func TestSphereIntersect(t *testing.T) {
 }
 
 func TestSphereUvs(t *testing.T) {
-	m := scene.InitSimpleMaterial(scene.Color{}, 0.0, false)
-	s := InitSphere(transfrom.Transform{Scale: linal.Vec3{X: 1, Y: 1, Z: 1}}, &m)
+	m := materials.InitSimpleMaterial(materials.Color{}, 0.0)
+	s := InitSphere(linal.Transform{Scale: linal.Vec3{X: 1, Y: 1, Z: 1}}, &m)
 
 	pt := linal.Vec3{X: 1}
 	uv := s.ToUv(pt)
@@ -48,8 +47,8 @@ func TestSphereUvs(t *testing.T) {
 }
 
 func TestSphereNormal1(t *testing.T) {
-	m := scene.InitSimpleMaterial(scene.Color{}, 0.0, false)
-	s := InitSphere(transfrom.Transform{Scale: linal.Vec3{X: 1, Y: 1, Z: 1}}, &m)
+	m := materials.InitSimpleMaterial(materials.Color{}, 0.0)
+	s := InitSphere(linal.Transform{Scale: linal.Vec3{X: 1, Y: 1, Z: 1}}, &m)
 	pt := linal.Vec3{Z: 1}
 	uv := s.ToUv(pt)
 	n := s.Normal(uv)

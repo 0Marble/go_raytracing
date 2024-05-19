@@ -2,21 +2,23 @@ package scene
 
 import (
 	"raytracing/linal"
+	"raytracing/materials"
+	"raytracing/shapes"
 )
 
 type Scene struct {
-	objs    []Object
+	objs    []shapes.Object
 	Cam     Camera
-	Outside Material
+	Outside materials.Material
 }
 
-func InitScene(objs []Object, cam Camera, outside Material) Scene {
+func InitScene(objs []shapes.Object, cam Camera, outside materials.Material) Scene {
 	return Scene{objs, cam, outside}
 }
 
-func (s *Scene) Intersect(ray Ray) (*Object, Intersection) {
-	var resObj *Object = nil
-	var res Intersection
+func (s *Scene) Intersect(ray linal.Ray) (*shapes.Object, shapes.Intersection) {
+	var resObj *shapes.Object = nil
+	res := shapes.Intersection{}
 	minDist := float32(0.0)
 
 	for i, obj := range s.objs {
