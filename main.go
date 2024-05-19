@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image/png"
 	"log"
+	"math"
 	"os"
 	"raytracing/linal"
 	"raytracing/raymarching"
@@ -15,44 +16,81 @@ import (
 func main() {
 	log.SetFlags(log.Lshortfile)
 
-	red := scene.InitSimpleMaterial(scene.Color{R: 1, G: 0.2, B: 0.2}, 1.0, false)
-	green := scene.InitSimpleMaterial(scene.Color{R: 0, G: 0.8, B: 0.2}, 0.9, false)
-	purple := scene.InitSimpleMaterial(scene.Color{R: 0.5, G: 0.0, B: 0.5}, 0.0, false)
-	sky := scene.InitSimpleMaterial(scene.Color{R: 0.4, G: 0.7, B: 0.9}, 1, true)
-	light := scene.InitSimpleMaterial(scene.Color{R: 1, G: 1, B: 1}, 0, true)
-	ball1 := shapes.InitSphere(
+	red := scene.InitSimpleMaterial(scene.Color{R: 1}, 0.0, false)
+	green := scene.InitSimpleMaterial(scene.Color{G: 1}, 0.0, false)
+	blue := scene.InitSimpleMaterial(scene.Color{B: 1}, 1.0, false)
+	white := scene.InitSimpleMaterial(scene.Color{R: 1, G: 1, B: 1}, 0.0, false)
+	light := scene.InitSimpleMaterial(scene.Color{R: 1, G: 1, B: 0.8}, 0.0, true)
+	outside := scene.InitSimpleMaterial(scene.Color{}, 0, false)
+
+	left := shapes.InitRect(
 		transfrom.Transform{
-			Scale:       linal.Vec3{X: 1, Y: 0.4, Z: 1},
-			Translation: linal.Vec3{Z: 1, X: -1.5},
+			Scale:       linal.Vec3{X: 5, Y: 5, Z: 1},
+			Rotation:    linal.Vec3{Y: -math.Pi * 0.5},
+			Translation: linal.Vec3{X: -2.5},
 		},
 		&red,
 	)
-	ball2 := shapes.InitSphere(
+	right := shapes.InitRect(
 		transfrom.Transform{
-			Scale:       linal.Vec3{X: 1, Y: 2, Z: 1},
-			Translation: linal.Vec3{Z: 1, X: 1.5},
+			Scale:       linal.Vec3{X: 5, Y: 5, Z: 1},
+			Rotation:    linal.Vec3{Y: math.Pi * 0.5},
+			Translation: linal.Vec3{X: 2.5},
 		},
 		&green,
 	)
-	ground := shapes.InitSphere(
+	bottom := shapes.InitRect(
 		transfrom.Transform{
-			Scale:       linal.Vec3{X: 100, Y: 2, Z: 100},
-			Translation: linal.Vec3{Y: -4},
+			Scale:       linal.Vec3{X: 5, Y: 5, Z: 1},
+			Rotation:    linal.Vec3{X: math.Pi * 0.5},
+			Translation: linal.Vec3{Y: -2.5},
 		},
-		&purple,
+		&white,
 	)
-	sun := shapes.InitSphere(
+	top := shapes.InitRect(
 		transfrom.Transform{
-			Scale:       linal.Vec3{X: 10, Y: 10, Z: 1},
-			Translation: linal.Vec3{Z: -10},
+			Scale:       linal.Vec3{X: 5, Y: 5, Z: 1},
+			Rotation:    linal.Vec3{X: math.Pi * 0.5},
+			Translation: linal.Vec3{Y: 2.5},
+		},
+		&white,
+	)
+	lightSource := shapes.InitRect(
+		transfrom.Transform{
+			Scale:       linal.Vec3{X: 1.5, Y: 1.5, Z: 1},
+			Rotation:    linal.Vec3{X: math.Pi * 0.5},
+			Translation: linal.Vec3{Y: 2.49},
 		},
 		&light,
 	)
+	back := shapes.InitRect(
+		transfrom.Transform{
+			Scale:       linal.Vec3{X: 5, Y: 5, Z: 1},
+			Rotation:    linal.Vec3{Y: math.Pi},
+			Translation: linal.Vec3{Z: -2.5},
+		},
+		&white,
+	)
+	front := shapes.InitRect(
+		transfrom.Transform{
+			Scale:       linal.Vec3{X: 5, Y: 5, Z: 1},
+			Translation: linal.Vec3{Z: 2.5},
+		},
+		&white,
+	)
+	ball := shapes.InitSphere(
+		transfrom.Transform{
+			Scale: linal.Vec3{X: 0.75, Y: 0.75, Z: 0.75},
+		},
+		&blue,
+	)
+
 	cam := scene.InitSimpleCamera(
 		transfrom.Transform{
-			Scale: linal.Vec3{X: 1, Y: 1, Z: 1},
+			Scale:       linal.Vec3{X: 1, Y: 1, Z: 1},
+			Translation: linal.Vec3{Z: -2},
 		}, 500, 500)
-	s := scene.InitScene([]scene.Object{&ground, &ball1, &ball2, &sun}, &cam, &sky)
+	s := scene.InitScene([]scene.Object{&top, &bottom, &left, &right, &back, &front, &ball, &lightSource}, &cam, &outside)
 	rm := raymarching.InitRaymarcher(s, 10)
 
 	for i := 0; i < 60; i++ {

@@ -15,8 +15,8 @@ func (t *Transform) ToMat() linal.Mat {
 	trans := translationMat(t.Translation)
 	scale := scaleMat(t.Scale)
 	rotx := rotMatX(t.Rotation.X)
-	roty := rotMatX(t.Rotation.Y)
-	rotz := rotMatX(t.Rotation.Z)
+	roty := rotMatY(t.Rotation.Y)
+	rotz := rotMatZ(t.Rotation.Z)
 
 	a := rotx.Matmul(&scale)
 	b := roty.Matmul(&a)
@@ -45,5 +45,5 @@ func rotMatY(rot float32) linal.Mat {
 func rotMatZ(rot float32) linal.Mat {
 	c := float32(math.Cos(float64(rot)))
 	s := float32(math.Sin(float64(rot)))
-	return linal.MatFromVals(4, []float32{c, -s, 0, 0, s, c, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1})
+	return linal.MatFromVals(4, []float32{c, -s, 0, 0, s, c, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1})
 }

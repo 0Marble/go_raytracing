@@ -132,7 +132,7 @@ func (r *Raymarcher) march(ray scene.Ray) marchStep {
 		}
 	}
 
-	newRay := scene.Ray{Start: hitPos.Add(dir.Mul(1e-2)), Dir: dir}
+	newRay := scene.Ray{Start: hitPos.Add(dir.Mul(1e-3)), Dir: dir}
 	return marchStep{
 		nextRay:     newRay,
 		material:    material,
