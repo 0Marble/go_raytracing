@@ -16,8 +16,8 @@ func main() {
 	log.SetFlags(log.Lshortfile)
 
 	s, camTransform := scenes.CornellScene()
-	camSensor := sensors.InitFsaaCheckerboardSensor(2)
-	camLens := lenses.InitProjectiveLens(camTransform)
+	camSensor := sensors.InitFsaaCheckerboardSensor(4)
+	camLens := lenses.InitSphericalLens(camTransform)
 	cam := camera.InitCamera(&camLens, &camSensor, &postprocess.NoProcessing{})
 	rm := raytracing.InitSimpleRaytracer(s, 2)
 	img := cam.Shoot(&rm, 500, 500, 0, 500, 0, 500)
