@@ -66,17 +66,19 @@ func CornellScene() (scene.Scene, camera.Camera) {
 	)
 	ball := shapes.InitSphere(
 		linal.Transform{
-			Scale: linal.Vec3{X: 0.75, Y: 0.75, Z: 0.75},
+			Scale:       linal.Vec3{X: 0.5, Y: 0.5, Z: 0.5},
+			Translation: linal.Vec3{X: -1.3, Y: -2.0, Z: 1.3},
 		},
 		&blue,
 	)
 	light := lights.InitPointLight(linal.Vec3{Y: 2.49}, materials.Color{R: 1, G: 1, B: 0.8})
 
-	cam := camera.InitSimpleCamera(
+	cam := camera.InitFsaaCamera(
 		linal.Transform{
 			Scale:       linal.Vec3{X: 1, Y: 1, Z: 1},
 			Translation: linal.Vec3{Z: -2},
-		}, 500, 500)
+		},
+		camera.CHECKER, 2)
 	s := scene.InitScene(
 		[]shapes.Object{&top, &bottom, &left, &right, &back, &front, &ball},
 		[]lights.Light{&light},

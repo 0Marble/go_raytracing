@@ -13,7 +13,7 @@ func main() {
 
 	s, cam := scenes.CornellScene()
 	rm := raytracing.InitSimpleRaytracer(s, 10)
-	img := cam.Shoot(&rm)
+	img := cam.Shoot(&rm, 500, 500, 0, 500, 500, 0)
 
 	fileName := "images/img.png"
 	file, err := os.Create(fileName)

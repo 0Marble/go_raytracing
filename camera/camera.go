@@ -31,5 +31,6 @@ type Sample struct {
 	color materials.Color
 }
 type Camera interface {
-	Shoot(rt raytracing.Raytracer) Image
+	Transform() linal.Transform
+	Shoot(rt raytracing.Raytracer, width int, height int, left int, right int, top int, bottom int) Image
 }

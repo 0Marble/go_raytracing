@@ -38,6 +38,25 @@ func (c Color) Clamp(min Color, max Color) Color {
 	return res
 }
 
+func (c Color) Add(a Color) Color {
+	return Color{R: c.R + a.R, G: c.G + a.G, B: c.B + a.B}
+}
+func (c Color) Sub(a Color) Color {
+	return Color{R: c.R - a.R, G: c.G - a.G, B: c.B - a.B}
+}
+func (c Color) Mul(a Color) Color {
+	return Color{R: c.R * a.R, G: c.G * a.G, B: c.B * a.B}
+}
+func (c Color) Div(a Color) Color {
+	return Color{R: c.R / a.R, G: c.G / a.G, B: c.B / a.B}
+}
+func (c Color) MulNum(a float32) Color {
+	return Color{R: c.R * a, G: c.G * a, B: c.B * a}
+}
+func (c Color) DivNum(a float32) Color {
+	return Color{R: c.R / a, G: c.G / a, B: c.B / a}
+}
+
 type Material interface {
 	Reflect(incoming linal.Vec3, normal linal.Vec3) linal.Vec3
 	Lit(incoming linal.Vec3, normal linal.Vec3, toLight linal.Vec3) Color
