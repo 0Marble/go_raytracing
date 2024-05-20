@@ -2,7 +2,6 @@ package examplescenes
 
 import (
 	"math"
-	"raytracing/camera"
 	"raytracing/lights"
 	"raytracing/linal"
 	"raytracing/materials"
@@ -10,7 +9,7 @@ import (
 	"raytracing/shapes"
 )
 
-func CornellScene() (scene.Scene, camera.Camera) {
+func CornellScene() (scene.Scene, linal.Transform) {
 	red := materials.InitSimpleMaterial(materials.Color{R: 1})
 	green := materials.InitSimpleMaterial(materials.Color{G: 1})
 	blue := materials.InitSimpleMaterial(materials.Color{B: 1})
@@ -73,16 +72,14 @@ func CornellScene() (scene.Scene, camera.Camera) {
 	)
 	light := lights.InitPointLight(linal.Vec3{Y: 2.49}, materials.Color{R: 1, G: 1, B: 0.8})
 
-	cam := camera.InitFsaaCamera(
-		linal.Transform{
-			Scale:       linal.Vec3{X: 1, Y: 1, Z: 1},
-			Translation: linal.Vec3{Z: -2},
-		},
-		camera.CHECKER, 2)
+	camTransform := linal.Transform{
+		Scale:       linal.Vec3{X: 1, Y: 1, Z: 1},
+		Translation: linal.Vec3{Z: -2},
+	}
 	s := scene.InitScene(
 		[]shapes.Object{&top, &bottom, &left, &right, &back, &front, &ball},
 		[]lights.Light{&light},
 		&outside)
 
-	return s, &cam
+	return s, camTransform
 }

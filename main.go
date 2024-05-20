@@ -4,6 +4,10 @@ import (
 	"image/png"
 	"log"
 	"os"
+	"raytracing/camera"
+	"raytracing/camera/lenses"
+	"raytracing/camera/postprocess"
+	"raytracing/camera/sensors"
 	scenes "raytracing/example_scenes"
 	"raytracing/raytracing"
 )
@@ -11,9 +15,12 @@ import (
 func main() {
 	log.SetFlags(log.Lshortfile)
 
-	s, cam := scenes.CornellScene()
-	rm := raytracing.InitSimpleRaytracer(s, 10)
-	img := cam.Shoot(&rm, 500, 500, 0, 500, 500, 0)
+	s, camTransform := scenes.CornellScene()
+	camSensor := sensors.InitFsaaCheckerboardSensor(2)
+	camLens := lenses.InitProjectiveLens(camTransform)
+	cam := camera.InitCamera(&camLens, &camSensor, &postprocess.NoProcessing{})
+	rm := raytracing.InitSimpleRaytracer(s, 2)
+	img := cam.Shoot(&rm, 500, 500, 0, 500, 0, 500)
 
 	fileName := "images/img.png"
 	file, err := os.Create(fileName)

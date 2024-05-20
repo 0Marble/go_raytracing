@@ -26,11 +26,39 @@ func (i *Image) At(x int, y int) color.Color {
 	return &i.Pixels[(i.Height-y-1)*i.Width+x]
 }
 
-type Sample struct {
-	uv    linal.Uv
-	color materials.Color
+type Camera struct {
+	lens   Lens
+	sensor Sensor
+	pp     PostProcess
 }
-type Camera interface {
-	Transform() linal.Transform
-	Shoot(rt raytracing.Raytracer, width int, height int, left int, right int, top int, bottom int) Image
+
+func InitCamera(lens Lens, sensor Sensor, postprocess PostProcess) Camera {
+	return Camera{lens, sensor, postprocess}
+}
+
+func (c *Camera) Shoot(rt raytracing.Raytracer, width, height, left, right, bottom, top int) Image {
+	w := right - left
+	h := top - bottom
+	img := Image{w, h, make([]materials.Color, w*h)}
+
+	for y := bottom; y < top; y++ {
+		for x := left; x < right; x++ {
+			color := c.sensor.GetPixel(rt, c.lens, x, y, width, height)
+			img.Pixels[(y-bottom)*w+(x-left)] = color
+		}
+	}
+
+	return c.pp.Process(img)
+}
+
+type Lens interface {
+	ShootRay(uv linal.Uv) linal.Ray
+}
+
+type Sensor interface {
+	GetPixel(rt raytracing.Raytracer, lens Lens, x, y, width, height int) materials.Color
+}
+
+type PostProcess interface {
+	Process(img Image) Image
 }

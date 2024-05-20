@@ -1,7 +1,6 @@
 package examplescenes
 
 import (
-	"raytracing/camera"
 	"raytracing/lights"
 	"raytracing/linal"
 	"raytracing/materials"
@@ -9,13 +8,13 @@ import (
 	"raytracing/shapes"
 )
 
-func RedRectScene() (scene.Scene, camera.Camera) {
+func RedRectScene() (scene.Scene, linal.Transform) {
 	bg := materials.InitSimpleMaterial(materials.Color{})
 	m := materials.InitSimpleMaterial(materials.Color{R: 1})
 	r := shapes.InitRect(linal.Transform{Scale: linal.Vec3{X: 1, Y: 1, Z: 1}}, &m)
-	cam := camera.InitSimpleCamera(linal.Transform{Scale: linal.Vec3{X: 1, Y: 1, Z: 1}, Translation: linal.Vec3{Z: -1}})
 	light := lights.InitDirectionalLight(linal.Vec3{Z: 1}, materials.Color{R: 1, G: 1, B: 1})
 	scene := scene.InitScene([]shapes.Object{&r}, []lights.Light{&light}, &bg)
 
-	return scene, &cam
+	camTransform := linal.Transform{Scale: linal.Vec3{X: 1, Y: 1, Z: 1}, Translation: linal.Vec3{Z: -1}}
+	return scene, camTransform
 }
