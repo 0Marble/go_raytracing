@@ -26,8 +26,8 @@ func (s *FsaaNByNSensor) GetPixel(rt raytracing.Raytracer, lens camera.Lens, x, 
 	for i := 0; i < s.n; i++ {
 		for j := 0; j < s.n; j++ {
 			uv := linal.Uv{
-				U: u + step*float32(i)*pWidth,
-				V: v + step*float32(j)*pHeight,
+				U: u + step*float32(i)*pWidth + 0.5*pWidth*step,
+				V: v + step*float32(j)*pHeight + 0.5*pHeight*step,
 			}
 
 			c := rt.Sample(lens.ShootRay(uv))
@@ -54,8 +54,8 @@ func (s *FsaaRgssSensor) GetPixel(rt raytracing.Raytracer, lens camera.Lens, x, 
 	step := float32(0.25)
 	for j, i := range xpts {
 		uv := linal.Uv{
-			U: u + step*float32(i)*pWidth + 0.5*pWidth,
-			V: v + step*float32(j)*pHeight + 0.5*pHeight,
+			U: u + step*float32(i)*pWidth + 0.5*pWidth*step,
+			V: v + step*float32(j)*pHeight + 0.5*pHeight*step,
 		}
 
 		c := rt.Sample(lens.ShootRay(uv))
@@ -88,8 +88,8 @@ func (s *FsaaCheckerboardSensor) GetPixel(rt raytracing.Raytracer, lens camera.L
 			}
 			cnt++
 			uv := linal.Uv{
-				U: u + step*float32(i)*pWidth,
-				V: v + step*float32(j)*pHeight,
+				U: u + step*float32(i)*pWidth + 0.5*pWidth*step,
+				V: v + step*float32(j)*pHeight + 0.5*pHeight*step,
 			}
 
 			ray := lens.ShootRay(uv)

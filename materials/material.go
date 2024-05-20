@@ -1,6 +1,7 @@
 package materials
 
 import (
+	"math"
 	"raytracing/linal"
 )
 
@@ -55,6 +56,13 @@ func (c Color) MulNum(a float32) Color {
 }
 func (c Color) DivNum(a float32) Color {
 	return Color{R: c.R / a, G: c.G / a, B: c.B / a}
+}
+func (c Color) PowNum(t float32) Color {
+	return Color{
+		R: float32(math.Pow(float64(c.R), float64(t))),
+		G: float32(math.Pow(float64(c.G), float64(t))),
+		B: float32(math.Pow(float64(c.B), float64(t))),
+	}
 }
 
 type Material interface {
