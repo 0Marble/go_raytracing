@@ -1,6 +1,7 @@
 package scene
 
 import (
+	"raytracing/lights"
 	"raytracing/linal"
 	"raytracing/materials"
 	"raytracing/shapes"
@@ -8,12 +9,13 @@ import (
 
 type Scene struct {
 	objs    []shapes.Object
+	lights  []lights.Light
 	Cam     Camera
 	Outside materials.Material
 }
 
-func InitScene(objs []shapes.Object, cam Camera, outside materials.Material) Scene {
-	return Scene{objs, cam, outside}
+func InitScene(objs []shapes.Object, lights []lights.Light, cam Camera, outside materials.Material) Scene {
+	return Scene{objs, lights, cam, outside}
 }
 
 func (s *Scene) Intersect(ray linal.Ray) (*shapes.Object, shapes.Intersection) {
@@ -37,6 +39,10 @@ func (s *Scene) Intersect(ray linal.Ray) (*shapes.Object, shapes.Intersection) {
 		}
 	}
 	return resObj, res
+}
+
+func (s *Scene) Lights() []lights.Light {
+	return s.lights
 }
 
 func (s *Scene) TotalAabb() linal.Aabb {

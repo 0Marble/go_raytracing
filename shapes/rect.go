@@ -30,7 +30,7 @@ func (s *Rect) Intersect(ray linal.Ray) Intersection {
 			return Intersection{IsHit: false}
 		}
 
-		return Intersection{IsHit: true, Uv: uv}
+		return Intersection{IsHit: true, Uv: uv, T: 0.0}
 	} else if dir.Z == 0 {
 		return Intersection{IsHit: false}
 	}
@@ -45,7 +45,10 @@ func (s *Rect) Intersect(ray linal.Ray) Intersection {
 		return Intersection{IsHit: false}
 	}
 
-	return Intersection{IsHit: true, Uv: uv}
+	globalPt := s.mat.ApplyToPoint(pt)
+	tDist := globalPt.Sub(ray.Start).Len() / ray.Dir.Len()
+
+	return Intersection{IsHit: true, Uv: uv, T: tDist}
 }
 
 func (s *Rect) Normal(uv linal.Uv) linal.Vec3 {

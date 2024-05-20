@@ -74,6 +74,30 @@ func (a Vec3) Max(b Vec3) Vec3 {
 	return a
 }
 
+func (c Vec3) Clamp(min Vec3, max Vec3) Vec3 {
+	res := c
+	if res.X < min.X {
+		res.X = min.X
+	}
+	if res.X > max.X {
+		res.X = max.X
+	}
+	if res.Y < min.Y {
+		res.Y = min.Y
+	}
+	if res.Y > max.Y {
+		res.Y = max.Y
+	}
+	if res.Z < min.Z {
+		res.Z = min.Z
+	}
+	if res.Z > max.Z {
+		res.Z = max.Z
+	}
+
+	return res
+}
+
 func (sp Vec3) FromSpherical() Vec3 {
 	theta := sp.Y
 	phi := sp.Z
