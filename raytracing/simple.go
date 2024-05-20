@@ -7,26 +7,16 @@ import (
 	"raytracing/scene"
 )
 
-type Raytracer struct {
+type SimpleRaytracer struct {
 	scene  scene.Scene
 	bounce int
 }
 
-func InitRaytracer(scene scene.Scene, bounce int) Raytracer {
-	return Raytracer{scene, bounce}
+func InitSimpleRaytracer(scene scene.Scene, bounce int) SimpleRaytracer {
+	return SimpleRaytracer{scene, bounce}
 }
 
-func (r *Raytracer) Trace() bool {
-	ray, uv, notEnd := r.scene.Cam.ShootRay()
-	if !notEnd {
-		return false
-	}
-	r.scene.Cam.EmitPixel(uv, r.shade(ray))
-
-	return true
-}
-
-func (r *Raytracer) shade(ray linal.Ray) materials.Color {
+func (r *SimpleRaytracer) Sample(ray linal.Ray) materials.Color {
 	hits := make([]singleStep, 0)
 	for bounce := 0; bounce < r.bounce; bounce++ {
 		step := r.trace(ray)
@@ -79,7 +69,7 @@ type singleStep struct {
 	nextRay    linal.Ray
 }
 
-func (r *Raytracer) trace(ray linal.Ray) singleStep {
+func (r *SimpleRaytracer) trace(ray linal.Ray) singleStep {
 	obj, intersection := r.scene.Intersect(ray)
 
 	if obj == nil {

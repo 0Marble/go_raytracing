@@ -10,12 +10,11 @@ import (
 type Scene struct {
 	objs    []shapes.Object
 	lights  []lights.Light
-	Cam     Camera
 	Outside materials.Material
 }
 
-func InitScene(objs []shapes.Object, lights []lights.Light, cam Camera, outside materials.Material) Scene {
-	return Scene{objs, lights, cam, outside}
+func InitScene(objs []shapes.Object, lights []lights.Light, outside materials.Material) Scene {
+	return Scene{objs, lights, outside}
 }
 
 func (s *Scene) Intersect(ray linal.Ray) (*shapes.Object, shapes.Intersection) {

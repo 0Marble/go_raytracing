@@ -189,3 +189,9 @@ func (mat *Mat) ApplyToDir(dir Vec3) Vec3 {
 	p := mat.Apply([]float32{dir.X, dir.Y, dir.Z, 0.0})
 	return Vec3{p[0], p[1], p[2]}
 }
+func (mat *Mat) ApplyToRay(ray Ray) Ray {
+	dir := mat.ApplyToDir(ray.Dir)
+	start := mat.ApplyToPoint(ray.Start)
+
+	return Ray{dir, start}
+}

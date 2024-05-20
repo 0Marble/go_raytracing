@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"image/png"
 	"log"
 	"os"
@@ -12,24 +11,19 @@ import (
 func main() {
 	log.SetFlags(log.Lshortfile)
 
-	s := scenes.CornellScene()
-	rm := raytracing.InitRaytracer(s, 10)
+	s, cam := scenes.CornellScene()
+	rm := raytracing.InitSimpleRaytracer(s, 10)
+	img := cam.Shoot(&rm)
 
-	for i := 0; i < 60; i++ {
-		log.Println(i)
-		for rm.Trace() {
-		}
-		img := s.Cam.ToImage(500, 500)
-		fileName := fmt.Sprintf("images/img_%v.png", i)
-		file, err := os.Create(fileName)
-		if err != nil {
-			log.Fatal("Could not open ", fileName, " : ", err)
-		}
-
-		err = png.Encode(file, &img)
-		if err != nil {
-			log.Fatal("Could not save as png: ", fileName, " : ", err)
-		}
-		file.Close()
+	fileName := "images/img.png"
+	file, err := os.Create(fileName)
+	if err != nil {
+		log.Fatal("Could not open ", fileName, " : ", err)
 	}
+	err = png.Encode(file, &img)
+	if err != nil {
+		log.Fatal("Could not save as png: ", fileName, " : ", err)
+	}
+	file.Close()
+
 }

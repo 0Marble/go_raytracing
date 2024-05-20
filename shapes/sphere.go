@@ -23,7 +23,7 @@ func InitSphere(transform linal.Transform, material materials.Material) Sphere {
 }
 
 func (s *Sphere) Intersect(ray linal.Ray) Intersection {
-	localRay := ray.Apply(&s.inv)
+	localRay := s.inv.ApplyToRay(ray)
 	a := localRay.Dir.LenSquared()
 	b := 2.0 * localRay.Dir.Dot(localRay.Start)
 	c := localRay.Start.LenSquared() - 1
