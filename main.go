@@ -16,7 +16,7 @@ import (
 func RenderAndSave(s scene.Scene, cam camera.Camera, fileName string) {
 	log.Println("Saving to ", fileName)
 	rm := raytracing.InitSimpleRaytracer(s, 4)
-	img := cam.Shoot(&rm, 500, 500, 0, 500, 0, 500)
+	img := cam.Shoot(&rm, 500, 500, 0, 500, 0, 500, 10)
 
 	file, err := os.Create(fileName)
 	if err != nil {

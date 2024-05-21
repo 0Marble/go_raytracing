@@ -6,5 +6,5 @@ import (
 )
 
 type Raytracer interface {
-	Sample(ray linal.Ray) materials.Color
+	Sample(ray linal.Ray, time float32) materials.Color
 }

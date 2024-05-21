@@ -1,6 +1,8 @@
 package linal
 
-import "math"
+import (
+	"math"
+)
 
 type Quat struct {
 	X float32
@@ -85,8 +87,10 @@ func (a Quat) ToMat() (Mat, bool) {
 }
 
 func (a Quat) Slerp(b Quat, t float32) Quat {
+	if a == b {
+		return a
+	}
 	phi := float32(math.Acos(float64(a.Dot(b))))
-
 	sinPhi := float32(math.Sin(float64(phi)))
 	return a.MulNum(float32(math.Sin(float64(phi*(1-t)))) / sinPhi).Add(b.MulNum(float32(math.Sin(float64(phi*t))) / sinPhi))
 }

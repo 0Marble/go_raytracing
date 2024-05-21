@@ -16,10 +16,10 @@ func InitSimpleRaytracer(scene scene.Scene, bounce int) SimpleRaytracer {
 	return SimpleRaytracer{scene, bounce}
 }
 
-func (r *SimpleRaytracer) Sample(ray linal.Ray) materials.Color {
+func (r *SimpleRaytracer) Sample(ray linal.Ray, time float32) materials.Color {
 	hits := make([]singleStep, 0)
 	for bounce := 0; bounce < r.bounce; bounce++ {
-		step := r.trace(ray)
+		step := r.trace(ray, time)
 		hits = append(hits, step)
 
 		if step.hitOutside {
@@ -35,7 +35,7 @@ func (r *SimpleRaytracer) Sample(ray linal.Ray) materials.Color {
 		for _, light := range r.scene.Lights() {
 			ray, uv := light.RayToLight(step.hitPos)
 			ray.Start = ray.Start.Add(ray.Dir.Mul(1e-3))
-			obj, intersection := r.scene.Intersect(ray)
+			obj, intersection := r.scene.Intersect(ray, time)
 			if obj != nil && intersection.T < light.TDist(ray) && intersection.T > 0 {
 				continue
 			}
@@ -69,8 +69,8 @@ type singleStep struct {
 	nextRay    linal.Ray
 }
 
-func (r *SimpleRaytracer) trace(ray linal.Ray) singleStep {
-	obj, intersection := r.scene.Intersect(ray)
+func (r *SimpleRaytracer) trace(ray linal.Ray, time float32) singleStep {
+	obj, intersection := r.scene.Intersect(ray, time)
 
 	if obj == nil {
 		sp := ray.Start.ToSpherical()
@@ -84,9 +84,9 @@ func (r *SimpleRaytracer) trace(ray linal.Ray) singleStep {
 	}
 
 	mat := (*obj).Material()
-	normal := (*obj).Normal(intersection.Uv)
+	normal := (*obj).Normal(intersection.Uv, time)
 	nextDir := (*mat).Reflect(ray.Dir, normal)
-	pos := (*obj).FromUv(intersection.Uv)
+	pos := (*obj).FromUv(intersection.Uv, time)
 	return singleStep{
 		hitOutside: false,
 		incoming:   ray.Dir,

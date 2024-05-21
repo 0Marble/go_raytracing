@@ -3,6 +3,8 @@ package camera
 import (
 	"image"
 	"image/color"
+	"log"
+	"math"
 	"raytracing/linal"
 	"raytracing/materials"
 	"raytracing/raytracing"
@@ -36,15 +38,31 @@ func InitCamera(lens Lens, sensor Sensor, postprocess PostProcess) Camera {
 	return Camera{lens, sensor, postprocess}
 }
 
-func (c *Camera) Shoot(rt raytracing.Raytracer, width, height, left, right, bottom, top int) Image {
+func (c *Camera) Shoot(rt raytracing.Raytracer, width, height, left, right, bottom, top int, timeSteps int) Image {
 	w := right - left
 	h := top - bottom
 	img := Image{w, h, make([]materials.Color, w*h)}
+	step := 1.0 / float32(timeSteps)
 
+	total := w * h * timeSteps
+	cnt := 0
+	prevPercent := 0
 	for y := bottom; y < top; y++ {
 		for x := left; x < right; x++ {
-			color := c.sensor.GetPixel(rt, c.lens, x, y, width, height)
+			color := materials.Color{}
+			for t := 0; t < timeSteps; t++ {
+				w := float32(math.Pow(0.5, float64(timeSteps-t)))
+				color = c.sensor.GetPixel(rt, c.lens, x, y, width, height, float32(t)*step).MulNum(w).Add(color)
+				cnt++
+			}
+			color = color.Clamp(materials.Color{}, materials.Color{R: 1, G: 1, B: 1})
 			img.Pixels[(y-bottom)*w+(x-left)] = color
+
+			percent := int(float32(cnt) / float32(total) * 100.0)
+			if percent%10 == 0 && percent != prevPercent {
+				log.Println(percent, "% done")
+				prevPercent = percent
+			}
 		}
 	}
 
@@ -56,7 +74,7 @@ type Lens interface {
 }
 
 type Sensor interface {
-	GetPixel(rt raytracing.Raytracer, lens Lens, x, y, width, height int) materials.Color
+	GetPixel(rt raytracing.Raytracer, lens Lens, x, y, width, height int, time float32) materials.Color
 }
 
 type PostProcess interface {

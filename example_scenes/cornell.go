@@ -21,7 +21,7 @@ func CornellScene() (scene.Scene, linal.Transform) {
 			Scale:       linal.Vec3{X: 5, Y: 5, Z: 1},
 			Rotation:    linal.QuatFromRot(linal.Vec3{Y: 1}, -math.Pi*0.5),
 			Translation: linal.Vec3{X: -2.5},
-		},
+		}.ToStaticTransform(),
 		&red,
 	)
 	right := shapes.InitRect(
@@ -29,7 +29,7 @@ func CornellScene() (scene.Scene, linal.Transform) {
 			Scale:       linal.Vec3{X: 5, Y: 5, Z: 1},
 			Rotation:    linal.QuatFromRot(linal.Vec3{Y: 1}, math.Pi*0.5),
 			Translation: linal.Vec3{X: 2.5},
-		},
+		}.ToStaticTransform(),
 		&green,
 	)
 	bottom := shapes.InitRect(
@@ -37,7 +37,7 @@ func CornellScene() (scene.Scene, linal.Transform) {
 			Scale:       linal.Vec3{X: 5, Y: 5, Z: 1},
 			Rotation:    linal.QuatFromRot(linal.Vec3{X: 1}, math.Pi*0.5),
 			Translation: linal.Vec3{Y: -2.5},
-		},
+		}.ToStaticTransform(),
 		&white,
 	)
 	top := shapes.InitRect(
@@ -45,7 +45,7 @@ func CornellScene() (scene.Scene, linal.Transform) {
 			Scale:       linal.Vec3{X: 5, Y: 5, Z: 1},
 			Rotation:    linal.QuatFromRot(linal.Vec3{X: 1}, -math.Pi*0.5),
 			Translation: linal.Vec3{Y: 2.5},
-		},
+		}.ToStaticTransform(),
 		&white,
 	)
 	back := shapes.InitRect(
@@ -53,7 +53,7 @@ func CornellScene() (scene.Scene, linal.Transform) {
 			Scale:       linal.Vec3{X: 5, Y: 5, Z: 1},
 			Rotation:    linal.QuatFromRot(linal.Vec3{Y: 1}, math.Pi),
 			Translation: linal.Vec3{Z: -2.5},
-		},
+		}.ToStaticTransform(),
 		&white,
 	)
 	front := shapes.InitRect(
@@ -61,15 +61,23 @@ func CornellScene() (scene.Scene, linal.Transform) {
 			Scale:       linal.Vec3{X: 5, Y: 5, Z: 1},
 			Rotation:    linal.QuatIdentity(),
 			Translation: linal.Vec3{Z: 2.5},
-		},
+		}.ToStaticTransform(),
 		&white,
 	)
+
+	startLoc := linal.Transform{
+		Scale:       linal.Vec3{X: 0.5, Y: 0.5, Z: 0.5},
+		Rotation:    linal.QuatIdentity(),
+		Translation: linal.Vec3{X: -1.3, Y: -2.0, Z: 1.3},
+	}
+	endLoc := linal.Transform{
+		Scale:       linal.Vec3{X: 0.5, Y: 0.5, Z: 0.5},
+		Rotation:    linal.QuatIdentity(),
+		Translation: linal.Vec3{X: 1.3, Y: -2.0, Z: 1.3},
+	}
 	ball := shapes.InitSphere(
-		linal.Transform{
-			Scale:       linal.Vec3{X: 0.5, Y: 0.5, Z: 0.5},
-			Rotation:    linal.QuatIdentity(),
-			Translation: linal.Vec3{X: -1.3, Y: -2.0, Z: 1.3},
-		},
+		&linal.InterpolatedTransform{Start: startLoc, End: endLoc},
+		// startLoc.ToStaticTransform(),
 		&blue,
 	)
 	light := lights.InitSpotlight(linal.Vec3{Y: 2.49}, linal.Vec3{Y: -1}, materials.Color{R: 1, G: 1, B: 0.8})

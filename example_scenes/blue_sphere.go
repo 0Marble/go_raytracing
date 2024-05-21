@@ -15,7 +15,7 @@ func BlueSphereScene() (scene.Scene, linal.Transform) {
 		linal.Transform{
 			Scale:    linal.Vec3{X: 1, Y: 1, Z: 1},
 			Rotation: linal.QuatIdentity(),
-		}, &m)
+		}.ToStaticTransform(), &m)
 	light := lights.InitDirectionalLight(linal.Vec3{Y: -1}, materials.Color{R: 1, G: 1, B: 1})
 	scene := scene.InitScene([]shapes.Object{&s}, []lights.Light{&light}, &bg)
 

@@ -15,7 +15,7 @@ func InitFsaaNByNSensor(n int) FsaaNByNSensor {
 	return FsaaNByNSensor{n}
 }
 
-func (s *FsaaNByNSensor) GetPixel(rt raytracing.Raytracer, lens camera.Lens, x, y, width, height int) materials.Color {
+func (s *FsaaNByNSensor) GetPixel(rt raytracing.Raytracer, lens camera.Lens, x, y, width, height int, time float32) materials.Color {
 	step := 1.0 / float32(s.n)
 	color := materials.Color{}
 	pWidth := 1.0 / float32(width)
@@ -30,7 +30,7 @@ func (s *FsaaNByNSensor) GetPixel(rt raytracing.Raytracer, lens camera.Lens, x, 
 				V: v + step*float32(j)*pHeight + 0.5*pHeight*step,
 			}
 
-			c := rt.Sample(lens.ShootRay(uv))
+			c := rt.Sample(lens.ShootRay(uv), time)
 			color = color.Add(c)
 		}
 	}
@@ -43,7 +43,7 @@ func InitFsaaRgssSensor() FsaaRgssSensor {
 	return FsaaRgssSensor{}
 }
 
-func (s *FsaaRgssSensor) GetPixel(rt raytracing.Raytracer, lens camera.Lens, x, y, width, height int) materials.Color {
+func (s *FsaaRgssSensor) GetPixel(rt raytracing.Raytracer, lens camera.Lens, x, y, width, height int, time float32) materials.Color {
 	color := materials.Color{}
 	pWidth := 1.0 / float32(width)
 	pHeight := 1.0 / float32(height)
@@ -58,7 +58,7 @@ func (s *FsaaRgssSensor) GetPixel(rt raytracing.Raytracer, lens camera.Lens, x, 
 			V: v + step*float32(j)*pHeight + 0.5*pHeight*step,
 		}
 
-		c := rt.Sample(lens.ShootRay(uv))
+		c := rt.Sample(lens.ShootRay(uv), time)
 		color = color.Add(c)
 	}
 	return color.DivNum(float32(len(xpts)))
@@ -72,7 +72,7 @@ func InitFsaaCheckerboardSensor(n int) FsaaCheckerboardSensor {
 	return FsaaCheckerboardSensor{n}
 }
 
-func (s *FsaaCheckerboardSensor) GetPixel(rt raytracing.Raytracer, lens camera.Lens, x, y, width, height int) materials.Color {
+func (s *FsaaCheckerboardSensor) GetPixel(rt raytracing.Raytracer, lens camera.Lens, x, y, width, height int, time float32) materials.Color {
 	step := 1.0 / float32(s.n)
 	color := materials.Color{}
 	pWidth := 1.0 / float32(width)
@@ -93,7 +93,7 @@ func (s *FsaaCheckerboardSensor) GetPixel(rt raytracing.Raytracer, lens camera.L
 			}
 
 			ray := lens.ShootRay(uv)
-			c := rt.Sample(ray)
+			c := rt.Sample(ray, time)
 			color = color.Add(c)
 		}
 	}
@@ -119,7 +119,7 @@ func InitFlipquadSensor(left int, right int, bottom int, top int) FlipquadSensor
 	return FlipquadSensor{make([]maybeColor, w*(h+1)*2), left, right, bottom, top}
 }
 
-func (s *FlipquadSensor) GetPixel(rt raytracing.Raytracer, lens camera.Lens, x, y, width, height int) materials.Color {
+func (s *FlipquadSensor) GetPixel(rt raytracing.Raytracer, lens camera.Lens, x, y, width, height int, time float32) materials.Color {
 	color := materials.Color{}
 	pWidth := 1.0 / float32(width)
 	pHeight := 1.0 / float32(height)
@@ -177,7 +177,7 @@ func (s *FlipquadSensor) GetPixel(rt raytracing.Raytracer, lens camera.Lens, x, 
 			V: v + dv,
 		}
 
-		c := rt.Sample(lens.ShootRay(uv))
+		c := rt.Sample(lens.ShootRay(uv), time)
 		s.samples[idx] = maybeColor{true, c}
 		color = color.Add(c)
 	}
