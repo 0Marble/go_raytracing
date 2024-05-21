@@ -47,7 +47,7 @@ func (s *Sphere) Intersect(ray linal.Ray) Intersection {
 
 	pt := localRay.Start.Add(localRay.Dir.Mul(t))
 
-	return Intersection{Uv: s.ToUv(pt), IsHit: true}
+	return Intersection{Uv: s.ToUv(pt), IsHit: true, T: s.mat.ApplyToPoint(pt).Sub(ray.Start).Len() / ray.Dir.Len()}
 }
 
 func (s *Sphere) Normal(uv linal.Uv) linal.Vec3 {
