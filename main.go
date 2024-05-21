@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"image/png"
 	"log"
 	"os"
@@ -11,7 +10,24 @@ import (
 	"raytracing/camera/sensors"
 	scenes "raytracing/example_scenes"
 	"raytracing/raytracing"
+	"raytracing/scene"
 )
+
+func RenderAndSave(s scene.Scene, cam camera.Camera, fileName string) {
+	log.Println("Saving to ", fileName)
+	rm := raytracing.InitSimpleRaytracer(s, 4)
+	img := cam.Shoot(&rm, 500, 500, 0, 500, 0, 500)
+
+	file, err := os.Create(fileName)
+	if err != nil {
+		log.Fatal("Could not open ", fileName, " : ", err)
+	}
+	err = png.Encode(file, &img)
+	if err != nil {
+		log.Fatal("Could not save as png: ", fileName, " : ", err)
+	}
+	file.Close()
+}
 
 func main() {
 	log.SetFlags(log.Lshortfile)
@@ -19,31 +35,6 @@ func main() {
 	s, camTransform := scenes.CornellScene()
 	camLens := lenses.InitProjectiveLens(camTransform)
 	pp := postprocess.InitGammaCorrection(1.0/2.2, &postprocess.NoProcessing{})
-
-	normalSensor := sensors.InitFsaaNByNSensor(1)
-	fsaa2x2 := sensors.InitFsaaNByNSensor(2)
-	fsaa4x4 := sensors.InitFsaaNByNSensor(4)
-	rgss := sensors.InitFsaaRgssSensor()
-	checker2x2 := sensors.InitFsaaCheckerboardSensor(2)
-	checker4x4 := sensors.InitFsaaCheckerboardSensor(4)
-	flipquad := sensors.InitFlipquadSensor(0, 500, 0, 500)
-
-	for i, sensor := range []camera.Sensor{&normalSensor, &fsaa2x2, &fsaa4x4, &rgss, &checker2x2, &checker4x4, &flipquad} {
-		log.Println("Using sensor #", i)
-		cam := camera.InitCamera(&camLens, sensor, &pp)
-		rm := raytracing.InitSimpleRaytracer(s, 4)
-		img := cam.Shoot(&rm, 500, 500, 0, 500, 0, 500)
-
-		fileName := fmt.Sprintf("images/img_%v.png", i)
-		file, err := os.Create(fileName)
-		if err != nil {
-			log.Fatal("Could not open ", fileName, " : ", err)
-		}
-		err = png.Encode(file, &img)
-		if err != nil {
-			log.Fatal("Could not save as png: ", fileName, " : ", err)
-		}
-		file.Close()
-	}
-
+	sensor := sensors.InitFsaaRgssSensor()
+	RenderAndSave(s, camera.InitCamera(&camLens, &sensor, &pp), "images/img.png")
 }

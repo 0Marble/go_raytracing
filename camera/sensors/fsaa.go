@@ -132,7 +132,6 @@ func (s *FlipquadSensor) GetPixel(rt raytracing.Raytracer, lens camera.Lens, x, 
 	} else {
 		xpts = [4]int{1, 3, 0, 2}
 	}
-	step := float32(0.25)
 	w := s.right - s.left
 
 	for j, i := range xpts {
@@ -156,7 +155,7 @@ func (s *FlipquadSensor) GetPixel(rt raytracing.Raytracer, lens camera.Lens, x, 
 		case 0:
 			du = -0.5 * pWidth
 		case 1:
-			du = -(3.0 / 8.0) * pWidth
+			du = -1.0 / 8.0 * pWidth
 		case 2:
 			du = 1.0 / 8.0 * pWidth
 		case 3:
@@ -166,7 +165,7 @@ func (s *FlipquadSensor) GetPixel(rt raytracing.Raytracer, lens camera.Lens, x, 
 		case 0:
 			dv = -0.5 * pHeight
 		case 1:
-			dv = -(3.0 / 8.0) * pHeight
+			dv = -1.0 / 8.0 * pHeight
 		case 2:
 			dv = 1.0 / 8.0 * pHeight
 		case 3:
@@ -174,8 +173,8 @@ func (s *FlipquadSensor) GetPixel(rt raytracing.Raytracer, lens camera.Lens, x, 
 		}
 
 		uv := linal.Uv{
-			U: u + step*float32(i)*pWidth + du,
-			V: v + step*float32(j)*pHeight + dv,
+			U: u + du,
+			V: v + dv,
 		}
 
 		c := rt.Sample(lens.ShootRay(uv))

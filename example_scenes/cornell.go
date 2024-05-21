@@ -70,7 +70,7 @@ func CornellScene() (scene.Scene, linal.Transform) {
 		},
 		&blue,
 	)
-	light := lights.InitPointLight(linal.Vec3{Y: 2.49}, materials.Color{R: 1, G: 1, B: 0.8})
+	light := lights.InitSpotlight(linal.Vec3{Y: 2.49}, linal.Vec3{Y: -1}, materials.Color{R: 1, G: 1, B: 0.8})
 
 	camTransform := linal.Transform{
 		Scale:       linal.Vec3{X: 1, Y: 1, Z: 1},
