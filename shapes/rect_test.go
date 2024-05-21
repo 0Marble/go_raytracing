@@ -16,8 +16,9 @@ func uvAlmostEqual(a linal.Uv, b linal.Uv, t *testing.T) {
 func TestRectIntersect1(t *testing.T) {
 	m := materials.InitSimpleMaterial(materials.Color{})
 	rect := InitRect(linal.Transform{
-		Scale: linal.Vec3{X: 1, Y: 1, Z: 1}},
-		&m)
+		Scale:    linal.Vec3{X: 1, Y: 1, Z: 1},
+		Rotation: linal.QuatIdentity(),
+	}, &m)
 
 	ray := linal.Ray{Start: linal.Vec3{Z: -1}, Dir: linal.Vec3{Z: 1}}
 	intersection := rect.Intersect(ray)
@@ -38,7 +39,7 @@ func TestRectIntersect2(t *testing.T) {
 	m := materials.InitSimpleMaterial(materials.Color{})
 	rect := InitRect(linal.Transform{
 		Scale:    linal.Vec3{X: 2, Y: 2, Z: 1},
-		Rotation: linal.Vec3{X: math.Pi * 0.25},
+		Rotation: linal.QuatFromRot(linal.Vec3{X: 1}, math.Pi*0.25),
 	}, &m)
 
 	ray := linal.Ray{Start: linal.Vec3{Z: -1}, Dir: linal.Vec3{Z: 1}}

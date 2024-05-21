@@ -19,7 +19,7 @@ func CornellScene() (scene.Scene, linal.Transform) {
 	left := shapes.InitRect(
 		linal.Transform{
 			Scale:       linal.Vec3{X: 5, Y: 5, Z: 1},
-			Rotation:    linal.Vec3{Y: -math.Pi * 0.5},
+			Rotation:    linal.QuatFromRot(linal.Vec3{Y: 1}, -math.Pi*0.5),
 			Translation: linal.Vec3{X: -2.5},
 		},
 		&red,
@@ -27,7 +27,7 @@ func CornellScene() (scene.Scene, linal.Transform) {
 	right := shapes.InitRect(
 		linal.Transform{
 			Scale:       linal.Vec3{X: 5, Y: 5, Z: 1},
-			Rotation:    linal.Vec3{Y: math.Pi * 0.5},
+			Rotation:    linal.QuatFromRot(linal.Vec3{Y: 1}, math.Pi*0.5),
 			Translation: linal.Vec3{X: 2.5},
 		},
 		&green,
@@ -35,7 +35,7 @@ func CornellScene() (scene.Scene, linal.Transform) {
 	bottom := shapes.InitRect(
 		linal.Transform{
 			Scale:       linal.Vec3{X: 5, Y: 5, Z: 1},
-			Rotation:    linal.Vec3{X: math.Pi * 0.5},
+			Rotation:    linal.QuatFromRot(linal.Vec3{X: 1}, math.Pi*0.5),
 			Translation: linal.Vec3{Y: -2.5},
 		},
 		&white,
@@ -43,7 +43,7 @@ func CornellScene() (scene.Scene, linal.Transform) {
 	top := shapes.InitRect(
 		linal.Transform{
 			Scale:       linal.Vec3{X: 5, Y: 5, Z: 1},
-			Rotation:    linal.Vec3{X: -math.Pi * 0.5},
+			Rotation:    linal.QuatFromRot(linal.Vec3{X: 1}, -math.Pi*0.5),
 			Translation: linal.Vec3{Y: 2.5},
 		},
 		&white,
@@ -51,7 +51,7 @@ func CornellScene() (scene.Scene, linal.Transform) {
 	back := shapes.InitRect(
 		linal.Transform{
 			Scale:       linal.Vec3{X: 5, Y: 5, Z: 1},
-			Rotation:    linal.Vec3{Y: math.Pi},
+			Rotation:    linal.QuatFromRot(linal.Vec3{Y: 1}, math.Pi),
 			Translation: linal.Vec3{Z: -2.5},
 		},
 		&white,
@@ -59,6 +59,7 @@ func CornellScene() (scene.Scene, linal.Transform) {
 	front := shapes.InitRect(
 		linal.Transform{
 			Scale:       linal.Vec3{X: 5, Y: 5, Z: 1},
+			Rotation:    linal.QuatIdentity(),
 			Translation: linal.Vec3{Z: 2.5},
 		},
 		&white,
@@ -66,6 +67,7 @@ func CornellScene() (scene.Scene, linal.Transform) {
 	ball := shapes.InitSphere(
 		linal.Transform{
 			Scale:       linal.Vec3{X: 0.5, Y: 0.5, Z: 0.5},
+			Rotation:    linal.QuatIdentity(),
 			Translation: linal.Vec3{X: -1.3, Y: -2.0, Z: 1.3},
 		},
 		&blue,
@@ -74,6 +76,7 @@ func CornellScene() (scene.Scene, linal.Transform) {
 
 	camTransform := linal.Transform{
 		Scale:       linal.Vec3{X: 1, Y: 1, Z: 1},
+		Rotation:    linal.QuatIdentity(),
 		Translation: linal.Vec3{Z: -2},
 	}
 	s := scene.InitScene(
