@@ -26,8 +26,9 @@ func main() {
 	rgss := sensors.InitFsaaRgssSensor()
 	checker2x2 := sensors.InitFsaaCheckerboardSensor(2)
 	checker4x4 := sensors.InitFsaaCheckerboardSensor(4)
+	flipquad := sensors.InitFlipquadSensor(0, 500, 0, 500)
 
-	for i, sensor := range []camera.Sensor{&normalSensor, &fsaa2x2, &fsaa4x4, &rgss, &checker2x2, &checker4x4} {
+	for i, sensor := range []camera.Sensor{&normalSensor, &fsaa2x2, &fsaa4x4, &rgss, &checker2x2, &checker4x4, &flipquad} {
 		log.Println("Using sensor #", i)
 		cam := camera.InitCamera(&camLens, sensor, &pp)
 		rm := raytracing.InitSimpleRaytracer(s, 4)
