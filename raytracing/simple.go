@@ -32,6 +32,8 @@ func (r *SimpleRaytracer) Sample(ray linal.Ray) materials.Color {
 	for i := len(hits) - 1; i >= 0; i-- {
 		step := hits[i]
 		color := materials.Color{}
+
+		cnt := 1
 		for _, light := range r.scene.Lights() {
 			ray, uv := light.RayToLight(step.hitPos)
 			ray.Start = ray.Start.Add(ray.Dir.Mul(1e-3))
@@ -41,19 +43,15 @@ func (r *SimpleRaytracer) Sample(ray linal.Ray) materials.Color {
 			}
 
 			lightColor := light.GetColor(uv, step.hitPos)
-			lit := (*step.material).Lit(step.incoming, step.normal, ray.Dir)
-
-			color.R += step.normal.Dot(ray.Dir) * lightColor.R * lit.R
-			color.G += step.normal.Dot(ray.Dir) * lightColor.G * lit.G
-			color.B += step.normal.Dot(ray.Dir) * lightColor.B * lit.B
+			lit := (*step.material).Color(ray.Dir, step.incoming.Mul(-1), step.normal)
+			color = color.Add(lightColor.Mul(lit))
+			cnt += 1
 		}
 
-		lit := (*step.material).Lit(step.incoming, step.normal, step.nextRay.Dir)
-		color.R += step.normal.Dot(step.nextRay.Dir) * res.R * lit.R
-		color.G += step.normal.Dot(step.nextRay.Dir) * res.G * lit.G
-		color.B += step.normal.Dot(step.nextRay.Dir) * res.B * lit.B
+		lit := (*step.material).Color(step.nextRay.Dir, step.incoming.Mul(-1), step.normal)
+		color = color.Add(res.Mul(lit))
 
-		res = color.Clamp(materials.Color{}, materials.Color{R: 1, G: 1, B: 1})
+		res = color.DivNum(float32(cnt)).Clamp(materials.Color{}, materials.Color{R: 1, G: 1, B: 1})
 	}
 
 	return res
@@ -83,9 +81,8 @@ func (r *SimpleRaytracer) trace(ray linal.Ray) singleStep {
 		}
 	}
 
-	mat := (*obj).Material()
 	normal := (*obj).Normal(intersection.Uv)
-	nextDir := (*mat).Reflect(ray.Dir, normal)
+	nextDir := ray.Dir.Sub(normal.Mul(2 * ray.Dir.Dot(normal)))
 	pos := (*obj).FromUv(intersection.Uv)
 	return singleStep{
 		hitOutside: false,

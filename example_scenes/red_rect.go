@@ -9,8 +9,8 @@ import (
 )
 
 func RedRectScene() (scene.Scene, linal.Transform) {
-	bg := materials.InitSimpleMaterial(materials.Color{})
-	m := materials.InitSimpleMaterial(materials.Color{R: 1})
+	bg := materials.Color{}
+	m := materials.InitBlinnPhong(materials.Color{R: 1}, materials.Color{}, 0)
 	r := shapes.InitRect(
 		linal.Transform{Scale: linal.Vec3{X: 1, Y: 1, Z: 1},
 			Rotation: linal.QuatIdentity(),

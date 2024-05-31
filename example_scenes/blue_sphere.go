@@ -9,8 +9,8 @@ import (
 )
 
 func BlueSphereScene() (scene.Scene, linal.Transform) {
-	bg := materials.InitSimpleMaterial(materials.Color{})
-	m := materials.InitSimpleMaterial(materials.Color{B: 1})
+	bg := materials.Color{}
+	m := materials.InitBlinnPhong(materials.Color{B: 1}, materials.Color{}, 0)
 	s := shapes.InitSphere(
 		linal.Transform{
 			Scale:    linal.Vec3{X: 1, Y: 1, Z: 1},

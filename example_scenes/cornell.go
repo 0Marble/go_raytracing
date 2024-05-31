@@ -10,11 +10,11 @@ import (
 )
 
 func CornellScene() (scene.Scene, linal.Transform) {
-	red := materials.InitSimpleMaterial(materials.Color{R: 1})
-	green := materials.InitSimpleMaterial(materials.Color{G: 1})
-	blue := materials.InitSimpleMaterial(materials.Color{B: 1})
-	white := materials.InitSimpleMaterial(materials.Color{R: 1, G: 1, B: 1})
-	outside := materials.InitSimpleMaterial(materials.Color{})
+	red := materials.InitBlinnPhong(materials.Color{R: 1}, materials.Color{R: 0.2, G: 0.1, B: 0}, 1)
+	green := materials.InitBlinnPhong(materials.Color{G: 1}, materials.Color{R: 0, G: 0.2, B: 0.1}, 10)
+	blue := materials.InitBlinnPhong(materials.Color{B: 1}, materials.Color{R: 0.4, G: 0.6, B: 1}, 1000)
+	white := materials.InitBlinnPhong(materials.Color{R: 1, G: 1, B: 1}, materials.Color{R: 0, G: 0, B: 0}, 0)
+	outside := materials.Color{}
 
 	left := shapes.InitRect(
 		linal.Transform{
